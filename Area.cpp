@@ -15,7 +15,7 @@ Area::Area(){
     room_inventory = std::vector<Item*>();
 }
 
-Area::Area(std::string name, std::string desription, int mapX, int mapY, std::array<std::array<int, 11>, 5> inputmap, std::vector<Item*> room_inventory){
+Area::Area(std::string name, std::string desription, int mapX, int mapY, std::array<std::array<int, 13>, 7> inputmap, std::vector<Item*> room_inventory){
     this->name = name;
     this->description = description;
     this->mapX = mapX;
@@ -32,7 +32,15 @@ std::string Area::get_description() const{
     return description;
 }
 
-std::array<std::array<int, 11>, 5>* Area::get_intmap(){
+int Area::get_mapX(){
+    return mapX;
+}
+
+int Area::get_mapY(){
+    return mapY;
+}
+
+std::array<std::array<int, 13>, 7>* Area::get_intmap(){
     return &intmap;
 }
 
@@ -61,8 +69,10 @@ char Area::get_char(int yi, int xi){
         case 0:
             return '.';     // These are all player-blocking obstacles like walls
         case 1:
+            return '.';
+        case 2:
             return '#';     
-        case 2:             
+        case 3:             
             return '&';    
         default:
             return 'X';     // If this is on screen thats bad news
@@ -85,19 +95,19 @@ void Area::set_mapY(int mapY){
     this->mapY = mapY;
 }
 
-void Area::set_intmap(std::array<std::array<int, 11>, 5> intmap){
+void Area::set_intmap(std::array<std::array<int, 13>, 7> intmap){
     this->intmap = intmap;
 }
 
-bool Area::collision(int y, int x){
+int Area::collision(int y, int x){
     switch(intmap[y][x]){
         case 0:
-            return false;
+            return 0;
         case 1:
-            return true;
+            return 2;
         case 2:
-            return true;
+            return 2;
         default:
-            return true;
+            return 2;
     }
 }

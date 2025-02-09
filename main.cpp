@@ -20,9 +20,6 @@
 #include <iostream>
 
 int main(){
-    
-    //TODO: Add Menu Functionality here
-
     Game newGame;
     newGame.play();
     return 0;

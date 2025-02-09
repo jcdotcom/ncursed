@@ -25,6 +25,11 @@ class Game{
         
         void initGame();    // Game Variable Initialization
         
+        Area generateRoom(int x, int y, int d);
+
+        void update();
+        Area getRoom(int x, int y, int d);
+
         void drawFrame();   // Rendering Functions
         void drawFloor();
         void drawPlayer();
@@ -56,7 +61,8 @@ class Game{
         //  player pos is real display coordinates 
         //  (ie: y=0,x=0 the top left on the game board is y=2, x=4)
       
-        std::array<std::array<Area, 2>, 2> map;
+        //std::array<std::array<Area, 2>, 2> map;
+        std::vector<std::vector<Area>> map;
         Area* current_area;
         Area begin;
 
