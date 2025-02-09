@@ -6,7 +6,7 @@
     #       using the NCurses library                   #
     #                                                   #
     #       Written by jcdotcom, started 01/26/2025     #
-    #               current ver: 0.01    02/02/2025     #
+    #               current ver: 0.01a   02/09/2025     #
     #                                                   #
     #####################################################
 */
@@ -28,7 +28,7 @@ class Game{
         Area generateRoom(int x, int y, int d);
 
         void update();
-        Area getRoom(int x, int y, int d);
+        Area& getRoom(int x, int y, int d);
 
         void drawFrame();   // Rendering Functions
         void drawFloor();
@@ -54,8 +54,8 @@ class Game{
         bool isRunning;
         int tickSpeed,
         elapsedTime,
-        p_posy,         //  Player Position Y
-        p_posx,         //  Player Position X
+        mapYs, mapXs,
+        p_posy, p_posx, //  Player Position Y & X
         player_health;
 
         //  player pos is real display coordinates 

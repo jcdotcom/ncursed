@@ -6,7 +6,7 @@
     #       using the NCurses library                   #
     #                                                   #
     #       Written by jcdotcom, started 01/26/2025     #
-    #               current ver: 0.01    02/02/2025     #
+    #               current ver: 0.01a   02/09/2025     #
     #                                                   #
     #####################################################
 
@@ -18,13 +18,16 @@
 
 ~~~~~{   CHANGELOG   }~~~~~
 
-    ---[ 0.02 - 02/xx/2025 ]---
+    ---[ 0.01a - 02/09/2025 ]---
 
         -expanded game area for wall rendering
         -started writing functionality for generating and 
             getting rooms
-        -broke the game :(
-            (segfaulting somewhere in initGame, when checking a vector in Area)
+        -started building the data structure which will 
+            hold all of the Area objects, using a 2d 
+            vector for now (not currently working)
+        -started building room switch functionality
+            getRoom(), generateRoom()
 
     ---[ 0.01 - 02/02/2025 ]---
 

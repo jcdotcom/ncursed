@@ -6,7 +6,7 @@
     #       using the NCurses library                   #
     #                                                   #
     #       Written by jcdotcom, started 01/26/2025     #
-    #               current ver: 0.01    02/02/2025     #
+    #               current ver: 0.01a   02/09/2025     #
     #                                                   #
     #####################################################
 */
@@ -26,7 +26,7 @@
     const int BOUNDYU = 2;
     const int BOUNDYD = 8;
     const int BOUNDXL = 3;
-    const int BOUNDXR = 29;
+    const int BOUNDXR = 28;
     const int DISPHEIGHT = 11;
 
 //-----[ GAME VAR INITIALIZATION ]-----//
@@ -51,7 +51,9 @@
             {{new HealthItem("bandage","a basic bandage",25,4,18,'+')}, 
             {new Key("rusty key","a rusty key", 1, 3, 24, 'k')}}
         );
-        map;
+        mapYs = 1;
+        mapXs = 1;
+        map.resize(mapYs, std::vector<Area>(mapXs));
         map[0][0] = begin;
         current_area = &map[0][0];
         tickSpeed = 10; // milliseconds
@@ -64,7 +66,7 @@
 
 //-----[ GENERATOR FUNCTIONS ]-----//
 
-    Area Game::generateRoom(int x, int y, int d){   //  x co-ord of new room
+    Area Game::generateRoom(int y, int x, int d){   //  x co-ord of new room
         Area newArea = Area();                      //  y co-ord of new room
         std::array<std::array<int,13>, 7> base = {{ //  d direction entered from
         {2,2,2,2,2,2,2,2,2,2,2,2,2},                //      0   -   N
@@ -77,7 +79,7 @@
         }};
         int roll = (rand() >> 5) % 3;
         for(int i=0;i<roll;i++){
-            mvwprintw(win_stat,4,2,"[roll =%d]",roll);
+            mvwprintw(win_stat,4+i,2,"[roll =%d]",roll);
             wrefresh(win_stat);
         }
         
@@ -105,23 +107,55 @@
 
     void Game::update(){
         if(p_posx==BOUNDXL){
-          getRoom((current_area->get_mapX())-1, current_area->get_mapY(), 4);  
+            current_area = &getRoom((current_area->get_mapX())-1, current_area->get_mapY(), 3);  
+            p_posx = 28;
         }
         else if(p_posx==BOUNDXR){
-          getRoom((current_area->get_mapX())+1, current_area->get_mapY(), 4);
+            current_area = &getRoom((current_area->get_mapX())+1, current_area->get_mapY(), 1);
+            p_posx = 6;
         }
         else if(p_posy==BOUNDYU){
-          getRoom(current_area->get_mapX(), (current_area->get_mapY())-1, 4);
+            current_area = &getRoom(current_area->get_mapX(), (current_area->get_mapY())-1, 0);
+            p_posy = 8;
         }
         else if(p_posy==BOUNDYD){
-          getRoom(current_area->get_mapX(), (current_area->get_mapY())+1, 4);
+            current_area = &getRoom(current_area->get_mapX(), (current_area->get_mapY())+1, 2);
+            p_posy = 2;
         }
     }
 
-    Area Game::getRoom(int x, int y, int d){
-        //if(){
-
-        //}
+    Area& Game::getRoom(int x, int y, int d){
+        if(y >= 0 && y < map.size()){
+            if(x >= 0 && x < map[0].size()){
+                Area& area = map[y][x];
+                if(area.get_name() != ""){
+                    return area;
+                }
+                else{
+                    Area newArea = generateRoom(y, x, d);
+                    map[y][x] = newArea;
+                    return map[y][x];
+                }
+            }
+            else{
+                mapXs++;
+                map.resize(mapYs, std::vector<Area>(mapXs));
+                Area newArea = generateRoom(y, x, d);
+                map[y][x] = newArea;
+                return map[y][x];
+            }
+        }
+        else{            
+            mapYs++;
+            map.resize(mapYs, std::vector<Area>(mapXs));
+            Area newArea = generateRoom(y, x, d);
+            map[y][x] = newArea;
+            return map[y][x];
+            
+            //std::cerr << "Error: Attempted to access out-of-bounds map coordinates!" << std::endl;
+            //Area& emptyArea; 
+            //return emptyArea;
+        }
     }
 
 //-----[ RENDER FUNCTIONS ]-----//
@@ -219,6 +253,7 @@
                         p_posy--;
                     }
                 }
+                update();
                 break;
             case 's':
                 if(p_posy < BOUNDYD){
@@ -226,6 +261,7 @@
                         p_posy++;
                     }
                 }
+                update();
                 break;
             case 'a':
                 if(p_posx > BOUNDXL+2){
@@ -233,13 +269,15 @@
                         p_posx-=2;
                     }
                 }
+                update();
                 break;
             case 'd':
-                if(p_posx < BOUNDXR-2){
+                if(p_posx < BOUNDXR-1){
                     if(current_area->collision(translateY(), translateX()+1)<=1){
                         p_posx+=2;
                     }
                 }
+                update();
                 break;
             case ' ':
                 for(Item* item : current_area->get_room_inventory()){
@@ -255,6 +293,7 @@
                         }
                     }
                 }
+                update();
                 break;
         }
     }
