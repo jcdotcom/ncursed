@@ -32,7 +32,6 @@
 //-----[ GAME VAR INITIALIZATION ]-----//
 
     void Game::initGame(){
-        begin = Area();
         std::array<std::array<int,13>, 7> mapBegin = {{
         {2,2,2,2,2,2,2,2,2,2,2,2,2},
         {2,0,0,0,2,0,0,0,0,0,0,0,2},
@@ -42,15 +41,10 @@
         {2,0,0,0,0,0,0,0,0,0,0,0,2},
         {2,2,2,2,2,2,2,2,2,2,2,2,2}
         }};
-        begin.set_name("start");
-        begin.set_description("the starting room");
-        begin.set_mapX(0);
-        begin.set_mapY(0);
-        begin.set_intmap(mapBegin);
-        begin.set_room_inventory(
-            {{new HealthItem("bandage","a basic bandage",25,4,18,'+')}, 
-            {new Key("rusty key","a rusty key", 1, 3, 24, 'k')}}
-        );
+        std::vector<Item*> inv;
+            //{new HealthItem("bandage","a basic bandage",25,4,18,'+'), 
+            //new Key("rusty key","a rusty key", 1, 3, 24, 'k')};
+        begin = Area("0 0",0,0,mapBegin,inv);
         mapYs = 1;
         mapXs = 1;
         map.resize(mapYs, std::vector<Area>(mapXs));
@@ -67,7 +61,7 @@
 //-----[ GENERATOR FUNCTIONS ]-----//
 
     Area Game::generateRoom(int y, int x, int d){   //  x co-ord of new room
-        Area newArea = Area();                      //  y co-ord of new room
+                                                     //  y co-ord of new room
         std::array<std::array<int,13>, 7> base = {{ //  d direction entered from
         {2,2,2,2,2,2,2,2,2,2,2,2,2},                //      0   -   N
         {2,0,0,0,0,0,0,0,0,0,0,0,2},                //      1   -   E
@@ -100,31 +94,33 @@
             
         }
 
-        return newArea;
+        std::vector<Item*> inv;
+
+        return Area(std::to_string(y) + " " + std::to_string(x),y,x,base,inv); 
     }
 
 //-----[ GAME FUNCTIONS ]-----//
 
     void Game::update(){
         if(p_posx==BOUNDXL){
-            current_area = &getRoom((current_area->get_mapX())-1, current_area->get_mapY(), 3);  
+            current_area = &getRoom((current_area->get_mapY()), current_area->get_mapX()-1, 3);  
             p_posx = 28;
         }
         else if(p_posx==BOUNDXR){
-            current_area = &getRoom((current_area->get_mapX())+1, current_area->get_mapY(), 1);
+            current_area = &getRoom((current_area->get_mapY()), current_area->get_mapX()+1, 1);
             p_posx = 6;
         }
         else if(p_posy==BOUNDYU){
-            current_area = &getRoom(current_area->get_mapX(), (current_area->get_mapY())-1, 0);
+            current_area = &getRoom(current_area->get_mapY()-1, (current_area->get_mapX()), 0);
             p_posy = 8;
         }
         else if(p_posy==BOUNDYD){
-            current_area = &getRoom(current_area->get_mapX(), (current_area->get_mapY())+1, 2);
+            current_area = &getRoom(current_area->get_mapY()+1, (current_area->get_mapX()), 2);
             p_posy = 2;
         }
     }
 
-    Area& Game::getRoom(int x, int y, int d){
+    Area& Game::getRoom(int y, int x, int d){
         if(y >= 0 && y < map.size()){
             if(x >= 0 && x < map[0].size()){
                 Area& area = map[y][x];
@@ -132,22 +128,26 @@
                     return area;
                 }
                 else{
+                    mapXs++;
+                    //map.resize(mapYs, std::vector<Area>(mapXs));
                     Area newArea = generateRoom(y, x, d);
                     map[y][x] = newArea;
+                    //map[y][x] = generateRoom(y, x, d);
                     return map[y][x];
                 }
             }
             else{
                 mapXs++;
-                map.resize(mapYs, std::vector<Area>(mapXs));
+                //map.resize(mapYs, std::vector<Area>(mapXs));
                 Area newArea = generateRoom(y, x, d);
                 map[y][x] = newArea;
+                //map[y][x] = generateRoom(y, x, d);
                 return map[y][x];
             }
         }
         else{            
             mapYs++;
-            map.resize(mapYs, std::vector<Area>(mapXs));
+            //map.resize(mapYs, std::vector<Area>(mapXs));
             Area newArea = generateRoom(y, x, d);
             map[y][x] = newArea;
             return map[y][x];
@@ -328,16 +328,21 @@
         initGame();
         drawFrame();
         drawFloor();
-        while (isRunning){
-            drawPlayer();
-            drawFloor();
-            input();
-            checkForItems();
-            elapsedTime += 50;
-            if (elapsedTime >= tickSpeed){
-                refresh();
-                elapsedTime = 0;
+        try{
+            while (isRunning){
+                drawPlayer();
+                drawFloor();
+                input();
+                checkForItems();
+                elapsedTime += 50;
+                if (elapsedTime >= tickSpeed){
+                    refresh();
+                    elapsedTime = 0;
+                }
             }
+        }catch(std::exception& e){
+            endwin();
+            printf("Game exited with error %s", e);
         }
         getch(); // Wait for user input before closing
         endwin(); // End ncurses mode

@@ -34,21 +34,22 @@ class EmptyItem : public Item {
             posx = 0;
             posy = 0;
         };
-        int use(int input = 0) override{
-            return 0;
+        int use(int input) override{
+            return value;
         }
-        std::string get_name() override{}
-        std::string get_desc() override{}
-        int get_value() override{}
-        int get_posy() override{}
-        int get_posx() override{}
-        char get_char() override{}
-        void set_name(std::string input) override{}
-        void set_desc(std::string input) override{}
-        void set_value(int input) override{}
-        void set_posy(int input) override{}
-        void set_posx(int input) override{}
-        void set_char(char input) override{}
+        std::string get_name() override { return name; }
+        std::string get_desc() override { return desc; }
+        int get_value() override { return value; }
+        int get_posy() override { return posy; }
+        int get_posx() override { return posx; }
+        char get_char() override { return itemchar; }
+
+        void set_name(std::string input) override { name = input; }
+        void set_desc(std::string input) override { desc = input; }
+        void set_value(int input) override { value = input; }
+        void set_posy(int input) override { posy = input; }
+        void set_posx(int input) override { posx = input; }
+        void set_char(char input) override { itemchar = input; }
 };
 
 class Key : public Item {

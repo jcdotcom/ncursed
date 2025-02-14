@@ -7,7 +7,7 @@
 class Area{
     public:
         Area();
-        Area(std::string name, std::string desription, int mapX, int mapY,
+        Area(std::string name, int mapY, int mapX,
             std::array<std::array<int, 13>, 7> inputmap,
             std::vector<Item*> room_inventory);
             

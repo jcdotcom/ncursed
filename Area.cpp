@@ -2,7 +2,6 @@
 
 Area::Area(){
     name = "";
-    description = "";
     mapX = 0;
     mapY = 0;
     intmap = {{
@@ -15,21 +14,16 @@ Area::Area(){
     room_inventory = std::vector<Item*>();
 }
 
-Area::Area(std::string name, std::string desription, int mapX, int mapY, std::array<std::array<int, 13>, 7> inputmap, std::vector<Item*> room_inventory){
+Area::Area(std::string name, int mapY, int mapX, std::array<std::array<int, 13>, 7> inputmap, std::vector<Item*> room_inventory){
     this->name = name;
-    this->description = description;
-    this->mapX = mapX;
     this->mapY = mapY;
-    this->intmap = intmap;
+    this->mapX = mapX;
+    this->intmap = inputmap;
     this->room_inventory = room_inventory;
 }
 
 std::string Area::get_name(){
     return name;
-}
-
-std::string Area::get_description() const{
-    return description;
 }
 
 int Area::get_mapX(){
@@ -81,10 +75,6 @@ char Area::get_char(int yi, int xi){
 
 void Area::set_name(std::string name){
     this->name = name;
-}
-
-void Area::set_description(std::string description){
-    this->description = description;
 }
 
 void Area::set_mapX(int mapX){
