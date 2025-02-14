@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Backup previous build if one exists
-if [ -z ./ncursed ]
+if [ -f ./ncursed ]
 then
 	mv ncursed .ncursed~
 fi
