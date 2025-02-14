@@ -1,11 +1,11 @@
 all:
-  @make debug
+	@make debug
 
 release:
-  @gcc -Wall -std=c++23 -lncurses -lstdc++ main.cpp Game.cpp Area.cpp -o ncursed
+	@gcc -Wall -std=c++23 -lncurses -lstdc++ main.cpp Game.cpp Area.cpp -o ncursed
 
 debug:
-  @gcc -g -Wall -Wpedantic -std=c++23 -lncurses -lstdc++ main.cpp Game.cpp Area.cpp -o ncursed
+	@gcc -g -Wall -Wpedantic -std=c++23 -lncurses -lstdc++ main.cpp Game.cpp Area.cpp -o ncursed
 
 clean:
-  @rm ncursed
+	@rm ncursed
