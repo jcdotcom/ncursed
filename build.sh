@@ -3,13 +3,13 @@
 # Backup previous build if one exists
 if [ -z ./ncursed ]
 then
-  mv ncursed .ncursed~
+	mv ncursed .ncursed~
 fi
 
-# Compile, then launch if successful
-if [ make ]
+# Compile, then launch if successful (make returned 0)
+if [ $(make) ]
 then
-  ./ncursed
+	echo -e " [E] Build failure\n"
 else
-  echo -e " [E] Build failure\n"
+	./ncursed
 fi
