@@ -25,7 +25,8 @@ class Game{
         
         void initGame();    // Game Variable Initialization
         
-        Area generateRoom(int x, int y, int d);
+        void generateMap();
+        Area generateRoom(int x, int y);
 
         void update();
         Area& getRoom(int x, int y, int d);
@@ -37,6 +38,7 @@ class Game{
         int translateY();
         void update_message(std::string);
         int checkForItems();
+        std::bitset<4> checkForDoors(int y, int x);
         
         void input();       // Input Handler
 
@@ -54,7 +56,7 @@ class Game{
         bool isRunning;
         int tickSpeed,
         elapsedTime,
-        mapYs, mapXs,
+        //mapYs, mapXs,     // TODO: 0.01b remove this line if new room gen stays
         p_posy, p_posx, //  Player Position Y & X
         player_health;
 
@@ -64,7 +66,7 @@ class Game{
         //std::array<std::array<Area, 2>, 2> map;
         std::vector<std::vector<Area>> map;
         Area* current_area;
-        Area begin;
+        //Area begin;
 
         std::array<Item*,INVENTORY_SIZE> inventory;
         int inventory_used;

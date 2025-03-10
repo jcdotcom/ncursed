@@ -18,6 +18,11 @@
 
 ~~~~~{   CHANGELOG   }~~~~~
 
+    ---[ 0.01b - 03/10/2025 ]---
+
+        -changing the usage of mapXs and mapYs to be declared at start
+        -changing room generation: all rooms generated at init now
+
     ---[ 0.01a - 02/09/2025 ]---
 
         -expanded game area for wall rendering

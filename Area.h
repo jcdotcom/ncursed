@@ -4,13 +4,15 @@
 #include <functional>
 #include "Item.h"
 
+#include <bitset> // 0.01b testing for new room gen
+
 class Area{
     public:
         Area();
         Area(std::string name, int mapY, int mapX,
             std::array<std::array<int, 13>, 7> inputmap,
-            std::vector<Item*> room_inventory);
-            
+            std::vector<Item*> room_inventory, std::bitset<4> doors);
+
         char get_char(int x, int y);
         std::string get_name();
         std::string get_description() const;
@@ -18,6 +20,7 @@ class Area{
         int get_mapY();
         std::array<std::array<int, 13>, 7>* get_intmap();
         std::vector<Item*>& get_room_inventory();
+        bool get_door(int direction);
 
         void set_name(std::string name);
         void set_description(std::string description);
@@ -37,4 +40,7 @@ class Area{
         int mapY;
         std::array<std::array<int, 13>, 7> intmap;
         std::vector<Item*> room_inventory;
+
+        std::bitset<4> doors;   //0.01b testing changes
+                                // 0 = N, 1 = E, 2 = S, 3 = W
 };

@@ -29,27 +29,15 @@
     const int BOUNDXR = 28;
     const int DISPHEIGHT = 11;
 
+    const int mapXs = 4;
+    const int mapYs = 4;
+
 //-----[ GAME VAR INITIALIZATION ]-----//
 
     void Game::initGame(){
-        std::array<std::array<int,13>, 7> mapBegin = {{
-        {2,2,2,2,2,2,2,2,2,2,2,2,2},
-        {2,0,0,0,2,0,0,0,0,0,0,0,2},
-        {2,0,0,0,2,0,0,0,0,0,0,0,0},
-        {2,2,0,2,2,0,0,0,0,0,0,0,0},
-        {2,0,0,0,0,0,0,0,0,0,0,0,0},
-        {2,0,0,0,0,0,0,0,0,0,0,0,2},
-        {2,2,2,2,2,2,2,2,2,2,2,2,2}
-        }};
-        std::vector<Item*> inv;
-            //{new HealthItem("bandage","a basic bandage",25,4,18,'+'), 
-            //new Key("rusty key","a rusty key", 1, 3, 24, 'k')};
-        begin = Area("0 0",0,0,mapBegin,inv);
-        mapYs = 1;
-        mapXs = 1;
-        map.resize(mapYs, std::vector<Area>(mapXs));
-        map[0][0] = begin;
-        current_area = &map[0][0];
+        generateMap();
+        //{new HealthItem("bandage","a basic bandage",25,4,18,'+'), 
+        //new Key("rusty key","a rusty key", 1, 3, 24, 'k')};
         tickSpeed = 10; // milliseconds
         elapsedTime = 0;
         p_posy = 3;     // starting player position Y axis
@@ -60,43 +48,73 @@
 
 //-----[ GENERATOR FUNCTIONS ]-----//
 
-    Area Game::generateRoom(int y, int x, int d){   //  x co-ord of new room
-                                                     //  y co-ord of new room
-        std::array<std::array<int,13>, 7> base = {{ //  d direction entered from
-        {2,2,2,2,2,2,2,2,2,2,2,2,2},                //      0   -   N
-        {2,0,0,0,0,0,0,0,0,0,0,0,2},                //      1   -   E
-        {2,0,0,0,0,0,0,0,0,0,0,0,2},                //      2   -   S
-        {2,0,0,0,0,0,0,0,0,0,0,0,2},                //      3   -   W
-        {2,0,0,0,0,0,0,0,0,0,0,0,2},
-        {2,0,0,0,0,0,0,0,0,0,0,0,2},
-        {2,2,2,2,2,2,2,2,2,2,2,2,2}
-        }};
-        int roll = (rand() >> 5) % 3;
-        for(int i=0;i<roll;i++){
-            mvwprintw(win_stat,4+i,2,"[roll =%d]",roll);
-            wrefresh(win_stat);
+    void Game::generateMap(){
+        for(int i=0;i<mapYs;i++){
+            for(int j=0;j<mapXs;j++){
+                int rollAmt = (rand() >> 4) % 5;    // roll for amount of doors
+                map[i][j] = generateRoom(i,j);
+            }
         }
-        
-        roll = (rand() >> 4) % 5;
-        while(roll==d){
-            roll = (rand() >> 4) % 5;
-        }
-        if(roll==0){
+    }
 
-        }
-        else if(roll==1){
-
-        }
-        else if(roll==2){
-
+    Area Game::generateRoom(int y, int x){  //  y & x co-ord of new room
+        if(y==0 && x==0){
+            std::array<std::array<int,13>, 7> intMap00 = {{
+            {2,2,2,2,2,2,2,2,2,2,2,2,2},
+            {2,0,0,0,2,0,0,0,0,0,0,0,2},
+            {2,0,0,0,2,0,0,0,0,0,0,0,0},
+            {2,2,0,2,2,0,0,0,0,0,0,0,0},
+            {2,0,0,0,0,0,0,0,0,0,0,0,0},
+            {2,0,0,0,0,0,0,0,0,0,0,0,2},
+            {2,2,2,2,2,2,2,2,2,2,2,2,2}
+            }};
+            std::vector<Item*> inv;
+            std::bitset<4> doors(0b0100);
+            return Area("0 0",0,0,intMap00,inv,doors);
         }
         else{
+            std::array<std::array<int,13>, 7> base = {{ 
+            {2,2,2,2,2,2,2,2,2,2,2,2,2},                
+            {2,0,0,0,0,0,0,0,0,0,0,0,2},                
+            {2,0,0,0,0,0,0,0,0,0,0,0,2},                
+            {2,0,0,0,0,0,0,0,0,0,0,0,2},                
+            {2,0,0,0,0,0,0,0,0,0,0,0,2},
+            {2,0,0,0,0,0,0,0,0,0,0,0,2},
+            {2,2,2,2,2,2,2,2,2,2,2,2,2}
+            }};
+
+            std::bitset<4> doorsOut(rand() % 16);
+            std::bitset<4> doorsIn = checkForDoors();
+
+                    // TODO 0.01b remove this section if new room gen is kept
+            //int roll = (rand() >> 5) % 3;   // roll for amount of doors
+            //for(int i=0;i<roll;i++){
+            //    mvwprintw(win_stat,4+i,2,"[roll =%d]",roll);
+            //    wrefresh(win_stat);
+            //}
             
+            int roll = (rand() >> 4) % 5;
+            //while(roll==d){
+            //    roll = (rand() >> 4) % 5;
+            //}
+            if(roll==0){
+
+            }
+            else if(roll==1){
+
+            }
+            else if(roll==2){
+
+            }
+            else{
+                
+            }
+
+            std::vector<Item*> inv;
+            std::bitset<4> doors(0b0000);
+
+            return Area((std::to_string(y) + " " + std::to_string(x)),y,x,base,inv,doors); 
         }
-
-        std::vector<Item*> inv;
-
-        return Area(std::to_string(y) + " " + std::to_string(x),y,x,base,inv); 
     }
 
 //-----[ GAME FUNCTIONS ]-----//
@@ -128,27 +146,27 @@
                     return area;
                 }
                 else{
-                    mapXs++;
+                    //mapXs++;
                     //map.resize(mapYs, std::vector<Area>(mapXs));
-                    Area newArea = generateRoom(y, x, d);
+                    Area newArea = generateRoom(y, x);
                     map[y][x] = newArea;
                     //map[y][x] = generateRoom(y, x, d);
                     return map[y][x];
                 }
             }
             else{
-                mapXs++;
+                //mapXs++;
                 //map.resize(mapYs, std::vector<Area>(mapXs));
-                Area newArea = generateRoom(y, x, d);
+                Area newArea = generateRoom(y, x);
                 map[y][x] = newArea;
                 //map[y][x] = generateRoom(y, x, d);
                 return map[y][x];
             }
         }
         else{            
-            mapYs++;
+            //mapYs++;
             //map.resize(mapYs, std::vector<Area>(mapXs));
-            Area newArea = generateRoom(y, x, d);
+            Area newArea = generateRoom(y, x);
             map[y][x] = newArea;
             return map[y][x];
             
@@ -239,6 +257,45 @@
         }
         update_message("");
         return 0;
+    }
+
+    std::bitset<4> Game::checkForDoors(int y, int x){
+        std::bitset<4> doorsFound(0b0000);
+        bool n,e,s,w = 1;   // bools for which rooms exist
+        if(y == 0){
+            n = 0;
+        }
+        else if(y == mapYs){
+            s = 0;
+        }
+        if(x == 0){
+            w = 0;
+        }
+        else if(x == mapXs){
+            e = 0;
+        }
+        if(y!=0){
+            if(map[y-1][x].get_door(2)){    // if door found 
+                doorsFound.set(0);
+            }
+        }
+        if(y!=mapYs){
+            if(map[y+1][x].get_door(0)){
+                doorsFound.set(2);
+            }
+        }
+        if(x!=0){
+            if(map[y][x-1].get_door(2)){
+                doorsFound.set(3);
+            }
+        }
+        if(x!=mapXs){
+            if(map[y][x+1].get_door(0)){
+                doorsFound.set(1);
+            }
+        }
+
+        return doorsFound;
     }
 
 //-----[ INPUT HANDLER ]-----//

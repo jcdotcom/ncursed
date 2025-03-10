@@ -5,21 +5,27 @@ Area::Area(){
     mapX = 0;
     mapY = 0;
     intmap = {{
-    {0,0,0,1,0,0,0,0,0,2,0},
-    {0,1,0,0,0,0,0,0,0,0,0},
-    {0,0,0,0,1,0,0,2,0,0,0},
-    {0,0,1,0,0,0,0,0,1,0,0},
-    {0,0,0,0,0,0,0,2,0,0,0}
+        {2,2,2,2,2,2,2,2,2,2,2,2,2},
+        {2,0,0,0,2,0,0,0,0,0,0,0,2},
+        {2,0,0,0,2,0,0,0,0,0,0,0,0},
+        {2,2,0,2,2,0,0,0,0,0,0,0,0},
+        {2,0,0,0,0,0,0,0,0,0,0,0,0},
+        {2,0,0,0,0,0,0,0,0,0,0,0,2},
+        {2,2,2,2,2,2,2,2,2,2,2,2,2}
     }};
     room_inventory = std::vector<Item*>();
+    doors = 0b0000;
 }
 
-Area::Area(std::string name, int mapY, int mapX, std::array<std::array<int, 13>, 7> inputmap, std::vector<Item*> room_inventory){
+Area::Area(std::string name, int mapY, int mapX, 
+            std::array<std::array<int, 13>, 7> inputmap, 
+            std::vector<Item*> room_inventory, std::bitset<4> doors){
     this->name = name;
     this->mapY = mapY;
     this->mapX = mapX;
     this->intmap = inputmap;
     this->room_inventory = room_inventory;
+    this->doors = doors;
 }
 
 std::string Area::get_name(){
@@ -40,6 +46,10 @@ std::array<std::array<int, 13>, 7>* Area::get_intmap(){
 
 std::vector<Item*>& Area::get_room_inventory(){
     return room_inventory;
+}
+
+bool Area::get_door(int direction){
+    return doors[direction];
 }
 
 void Area::set_room_inventory(std::vector<Item*> room_inventory){
