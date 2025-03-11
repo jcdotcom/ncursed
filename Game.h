@@ -13,6 +13,7 @@
 
 #define INVENTORY_SIZE 10
 
+#include <bitset>
 #include <string>
 #include <vector>
 #include <map>
@@ -38,7 +39,7 @@ class Game{
         int translateY();
         void update_message(std::string);
         int checkForItems();
-        std::bitset<4> checkForDoors(int y, int x);
+        std::bitset<4> checkForDoors(int y, int x, std::bitset<4> doors);
         
         void input();       // Input Handler
 

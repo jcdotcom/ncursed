@@ -82,37 +82,34 @@
             {2,0,0,0,0,0,0,0,0,0,0,0,2},
             {2,2,2,2,2,2,2,2,2,2,2,2,2}
             }};
+            std::bitset<4> doorsRand(rand() % 16);
+            std::bitset<4> doors = checkForDoors(y,x,doorsRand);
 
-            std::bitset<4> doorsOut(rand() % 16);
-            std::bitset<4> doorsIn = checkForDoors();
-
-                    // TODO 0.01b remove this section if new room gen is kept
-            //int roll = (rand() >> 5) % 3;   // roll for amount of doors
-            //for(int i=0;i<roll;i++){
-            //    mvwprintw(win_stat,4+i,2,"[roll =%d]",roll);
-            //    wrefresh(win_stat);
-            //}
-            
-            int roll = (rand() >> 4) % 5;
-            //while(roll==d){
-            //    roll = (rand() >> 4) % 5;
-            //}
-            if(roll==0){
-
+            if (doors[0] == 1){
+                base[0][5]==0;
+                base[0][6]==0;
+                base[0][7]==0;
             }
-            else if(roll==1){
+            if (doors[1] == 1){
+                base[2][12]==0;
+                base[3][12]==0;
+                base[4][12]==0;
+            }
+            if (doors[2] == 1){
+                base[6][5]==0;
+                base[6][6]==0;
+                base[6][7]==0;
+            }
+            if (doors[3] == 1){
+                base[2][0]==0;
+                base[3][0]==0;
+                base[4][0]==0;
+            }
 
-            }
-            else if(roll==2){
-
-            }
-            else{
-                
-            }
+            //int roll = (rand() >> 4) % 5;
 
             std::vector<Item*> inv;
-            std::bitset<4> doors(0b0000);
-
+            //std::bitset<4> doors(0b0000);
             return Area((std::to_string(y) + " " + std::to_string(x)),y,x,base,inv,doors); 
         }
     }
@@ -174,6 +171,30 @@
             //Area& emptyArea; 
             //return emptyArea;
         }
+    }
+
+    std::bitset<4> Game::checkForDoors(int y, int x, std::bitset<4> doors){
+        if(!y<=0){
+            if(map[y-1][x].get_door(2)){    // if door found 
+                doors.reset(0);
+            }
+        }
+        if(!y>=mapYs){
+            if(map[y+1][x].get_door(0)){
+                doors.reset(2);
+            }
+        }
+        if(!x<=0){
+            if(map[y][x-1].get_door(2)){
+                doors.reset(3);
+            }
+        }
+        if(!x>=mapXs){
+            if(map[y][x+1].get_door(0)){
+                doors.reset(1);
+            }
+        }
+        return doors;
     }
 
 //-----[ RENDER FUNCTIONS ]-----//
@@ -257,45 +278,6 @@
         }
         update_message("");
         return 0;
-    }
-
-    std::bitset<4> Game::checkForDoors(int y, int x){
-        std::bitset<4> doorsFound(0b0000);
-        bool n,e,s,w = 1;   // bools for which rooms exist
-        if(y == 0){
-            n = 0;
-        }
-        else if(y == mapYs){
-            s = 0;
-        }
-        if(x == 0){
-            w = 0;
-        }
-        else if(x == mapXs){
-            e = 0;
-        }
-        if(y!=0){
-            if(map[y-1][x].get_door(2)){    // if door found 
-                doorsFound.set(0);
-            }
-        }
-        if(y!=mapYs){
-            if(map[y+1][x].get_door(0)){
-                doorsFound.set(2);
-            }
-        }
-        if(x!=0){
-            if(map[y][x-1].get_door(2)){
-                doorsFound.set(3);
-            }
-        }
-        if(x!=mapXs){
-            if(map[y][x+1].get_door(0)){
-                doorsFound.set(1);
-            }
-        }
-
-        return doorsFound;
     }
 
 //-----[ INPUT HANDLER ]-----//
