@@ -45,6 +45,7 @@ class Game{
         void rm_inventory(std::string);
 
         void play();        // Main Game Loop
+        std::string debug_msg;
     
     private:
         WINDOW *win_main;
@@ -52,11 +53,15 @@ class Game{
         WINDOW *win_stat;
         WINDOW *win_msg;
         bool isRunning;
+        bool canTransition;
         int tickSpeed,
         elapsedTime,
         mapYs, mapXs,
         p_posy, p_posx, //  Player Position Y & X
+        m_posy, m_posx,
         player_health;
+
+        //std::string debug_msg;
 
         //  player pos is real display coordinates 
         //  (ie: y=0,x=0 the top left on the game board is y=2, x=4)

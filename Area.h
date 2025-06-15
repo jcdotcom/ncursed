@@ -5,6 +5,17 @@
 #include "Item.h"
 
 class Area{
+    
+    private:
+        std::string name;
+        std::string description;
+        int mapX;
+        int mapY;
+        std::array<std::array<int, 13>, 7> intmap;
+        std::vector<Item*> room_inventory;
+
+        bool doorN = false, doorS = false, doorE = false, doorW = false;
+
     public:
         Area();
         Area(std::string name, int mapY, int mapX,
@@ -30,11 +41,13 @@ class Area{
 
         int collision(int x, int y);
 
-    private:
-        std::string name;
-        std::string description;
-        int mapX;
-        int mapY;
-        std::array<std::array<int, 13>, 7> intmap;
-        std::vector<Item*> room_inventory;
+        bool hasDoorNorth() const { return doorN; }
+        bool hasDoorSouth() const { return doorS; }
+        bool hasDoorEast()  const { return doorE; }
+        bool hasDoorWest()  const { return doorW; }
+
+        void setDoors(bool n, bool s, bool e, bool w) {
+            doorN = n; doorS = s; doorE = e; doorW = w;
+        }
+
 };
