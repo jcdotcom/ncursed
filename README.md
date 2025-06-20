@@ -18,6 +18,10 @@
 
 ~~~~~{   CHANGELOG   }~~~~~
 
+    ---[ 0.02a - 06/19/2025 ]---
+
+        -began rework of room procedural generation
+
     ---[ 0.01a - 02/09/2025 ]---
 
         -expanded game area for wall rendering

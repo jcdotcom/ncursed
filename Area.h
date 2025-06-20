@@ -4,6 +4,14 @@
 #include <functional>
 #include "Item.h"
 
+struct roomdata{
+    bool doorN = false;
+    bool doorS = false;
+    bool doorE  = false;
+    bool doorW  = false;
+    bool visited;
+};
+
 class Area{
     
     private:

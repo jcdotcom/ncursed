@@ -1,4 +1,4 @@
-/*
+;/*
     #####################################################
     #                                                   #
     #   NCursed                                         #
@@ -25,7 +25,8 @@ class Game{
         
         void initGame();    // Game Variable Initialization
         
-        Area generateRoom(int x, int y, int d);
+        void generateMap();
+        Area generateRoom(int x, int y, roomdata rooms);
 
         void update();
         Area& getRoom(int x, int y, int d);

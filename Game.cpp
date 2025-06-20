@@ -6,7 +6,7 @@
     #       using the NCurses library                   #
     #                                                   #
     #       Written by jcdotcom, started 01/26/2025     #
-    #               current ver: 0.01a   02/09/2025     #
+    #               current ver: 0.02a   06/19/2025     #
     #                                                   #
     #####################################################
 */
@@ -42,26 +42,65 @@
         isRunning = true;
         canTransition = true;
 
-        mapYs = 4;
-        mapXs = 4;
+        mapYs = 3;
+        mapXs = 3;
 
         map.resize(mapYs, std::vector<Area>(mapXs));
 
         debug_msg = "none";
-        int count = 0;
-        for (int y = 0; y < mapYs; y++) {
-            for (int x = 0; x < mapXs; x++) {
-                map[y][x] = generateRoom(y, x, -1); // -1 = no direction (initial gen)
-                count++;
-            }
-        }
-        //debug_msg = std::to_string(count);
+
+        generateMap();
+
         current_area = &map[1][1]; // Start in center of 3x3 grid
     }
 
 //-----[ GENERATOR FUNCTIONS ]-----//
 
-Area Game::generateRoom(int y, int x, int d) {
+void Game::generateMap(){
+    std::vector<std::vector<roomdata>> doorMap(mapYs, std::vector<roomdata>(mapXs));
+    for (int y = 0; y < mapYs; y++) {
+        for (int x = 0; x < mapXs; x++) {
+            //map[y][x] = generateRoom(y, x, -1); // -1 = no direction (initial gen)
+            if (y > 0 && rand() % 2) {
+                doorMap[y][x].doorN = true;
+                doorMap[y - 1][x].doorS = true;
+            }
+            if (y < mapYs-1 && rand() % 2){
+                doorMap[y][x].doorS = true;
+                doorMap[y + 1][x].doorN = true;
+            }
+            if (x > 0 && rand() % 2) {
+                doorMap[y][x].doorW = true;
+                doorMap[y][x - 1].doorE = true;
+            }
+            if (x < mapXs-1 && rand() % 2) {
+                doorMap[y][x].doorE = true;
+                doorMap[y][x + 1].doorW = true;
+            }
+            if(y < mapYs-1 && doorMap[y+1][x].doorS == true){
+                doorMap[y][x].doorN = true;
+            }
+            if(y > 0 && doorMap[y-1][x].doorN == true){
+                doorMap[y][x].doorS = true;
+            }
+            if(x < mapXs-1 && doorMap[y][x+1].doorW == true){
+                doorMap[y][x].doorE = true;
+            }
+            if(x > 0 && doorMap[y][x-1].doorE == true){
+                doorMap[y][x].doorW = true;
+            }
+        }
+    }
+
+    for (int y = 0; y < mapYs; y++) {
+        for (int x = 0; x < mapXs; x++) {
+            map[y][x] = generateRoom(y, x, doorMap[y][x]);
+        }
+    }
+    //debug_msg = std::to_string(count);
+}
+
+Area Game::generateRoom(int y, int x, roomdata rooms) {
     std::array<std::array<int,13>, 7> layout{};
 
     // Outer walls
@@ -71,130 +110,57 @@ Area Game::generateRoom(int y, int x, int d) {
         }
     }
 
-        /*
-        
-            !!! door generation is broken here
-        
-        */
+    bool dn = rooms.doorN;
+    bool ds = rooms.doorS;
+    bool de = rooms.doorE;
+    bool dw = rooms.doorW;
 
-    bool isNorthEdge = (y == 3);
-    bool isSouthEdge = (y == 1);
-    bool isWestEdge  = (x == 1);
-    bool isEastEdge  = (x == 3);
+    if(y == 0){ ds = false; }
+    else if(y == 2){ dn = false; }
+    if(x == 0){ dw = false; }
+    else if(x == 2){ de = false; }
 
-    // --- Determine doors from existing adjacent rooms --- //
-    bool northDoor = (y > 0 && y + 1 < mapYs && x < map[y - 1].size() &&
-                      map[y - 1][x].hasDoorSouth());
-    bool southDoor = (y + 1 < mapYs && x < mapXs &&
-                      map[y + 1][x].hasDoorNorth());
-    bool westDoor =  (x > 0 && map[y][x - 1].hasDoorEast());
-    bool eastDoor =  (x < mapXs && map[y][x + 1].hasDoorWest());
+    if(dn){ layout[6][5] = 0; layout[6][6] = 0; layout[6][7] = 0; }
+    if(ds){ layout[0][5] = 0; layout[0][6] = 0; layout[0][7] = 0; }
+    if(de){ layout[2][0] = 0; layout[3][0] = 0; layout[4][0] = 0; }
+    if(dw){ layout[2][12] = 0; layout[3][12] = 0; layout[4][12] = 0; }
 
-    // --- Random doors, only if within bounds and not already set by neighbor --- //
-    if (!northDoor && y > 0 && !isNorthEdge && rand() % 2) northDoor = true;
-    if (!southDoor && y < map.size() && !isSouthEdge && rand() % 2) southDoor = true;
-    if (!westDoor  && x > 0 && !isWestEdge  && rand() % 2) westDoor  = true;
-    if (!eastDoor  && x < map[y].size() && !isEastEdge  && rand() % 2) eastDoor  = true;
-
-    // Apply doors
-    if (northDoor) {
-    layout[0][5] = layout[0][6] = layout[0][7] = 0;
-    layout[1][5] = layout[1][6] = layout[1][7] = 0;
-}
-
-// South door (bottom wall), open row 6 and row 5
-if (southDoor) {
-    layout[6][5] = layout[6][6] = layout[6][7] = 0;
-    layout[5][5] = layout[5][6] = layout[5][7] = 0;
-}
-
-// West door (left wall), open col 0 and col 1
-if (westDoor) {
-    layout[2][0] = layout[3][0] = layout[4][0] = 0;
-    layout[2][1] = layout[3][1] = layout[4][1] = 0;
-}
-
-// East door (right wall), open col 12 and col 11
-if (eastDoor) {
-    layout[2][12] = layout[3][12] = layout[4][12] = 0;
-    layout[2][11] = layout[3][11] = layout[4][11] = 0;
-}
 
     // --- Save this info in the Area (so future rooms can reference it) --- //
     std::vector<Item*> inv;
     Area newRoom(std::to_string(y) + " " + std::to_string(x), y, x, layout, inv);
-    newRoom.setDoors(northDoor, southDoor, eastDoor, westDoor); // You'll implement this
+    newRoom.setDoors(dn, ds, de, dw); // You'll implement this
 
     return newRoom;
 }
 
-/*
-    Area Game::generateRoom(int y, int x, int d){   //  x co-ord of new room
-                                                     //  y co-ord of new room
-        std::array<std::array<int,13>, 7> base = {{ //  d direction entered from
-        {2,2,2,2,2,2,2,2,2,2,2,2,2},                //      0   -   N
-        {2,0,0,0,0,0,0,0,0,0,0,0,2},                //      1   -   E
-        {2,0,0,0,0,0,0,0,0,0,0,0,2},                //      2   -   S
-        {2,0,0,0,0,0,0,0,0,0,0,0,2},                //      3   -   W
-        {2,0,0,0,0,0,0,0,0,0,0,0,2},
-        {2,0,0,0,0,0,0,0,0,0,0,0,2},
-        {2,2,2,2,2,2,2,2,2,2,2,2,2}
-        }};
-        int roll = (rand() >> 5) % 3;
-        for(int i=0;i<roll;i++){
-            mvwprintw(win_stat,4+i,2,"[roll =%d]",roll);
-            wrefresh(win_stat);
-        }
-        
-        roll = (rand() >> 4) % 5;
-        while(roll==d){
-            roll = (rand() >> 4) % 5;
-        }
-        if(roll==0){
-
-        }
-        else if(roll==1){
-
-        }
-        else if(roll==2){
-
-        }
-        else{
-            
-        }
-
-        std::vector<Item*> inv;
-
-        return Area(std::to_string(y) + " " + std::to_string(x),y,x,base,inv); 
-    }
-*/
 //-----[ GAME FUNCTIONS ]-----//
     void Game::update() {
         if (!canTransition) return;
-        else if (p_posx <= BOUNDXL && m_posx > 1) {
+        else if (p_posx <= BOUNDXL && m_posx > 0) {
             debug_msg = "left";
             current_area = &getRoom(current_area->get_mapY(), current_area->get_mapX() - 1, 3);
             m_posx--;
             p_posx = BOUNDXR; // Move slightly inside the new room
             canTransition = false;
         }
-        else if (p_posx >= BOUNDXR && m_posx < 4) {
+        else if (p_posx >= BOUNDXR && m_posx < 3) {
             debug_msg = "right";
             current_area = &getRoom(current_area->get_mapY(), current_area->get_mapX() + 1, 1);
             m_posx++;
             p_posx = BOUNDXL;
             canTransition = false;
         }
-        else if (p_posy <= BOUNDYU && m_posy < 4) {
+        else if (p_posy <= BOUNDYU && m_posy < 3) {
             debug_msg = "up";
             current_area = &getRoom(current_area->get_mapY() + 1, current_area->get_mapX(), 0);
             m_posy++;
             p_posy = BOUNDYD;
             canTransition = false;
         }
-        else if (p_posy >= BOUNDYD && m_posy > 1) {
+        else if (p_posy >= BOUNDYD && m_posy > 0) {
             debug_msg = "down";
-            current_area = &getRoom(current_area->get_mapY() + 1, current_area->get_mapX(), 2);
+            current_area = &getRoom(current_area->get_mapY() - 1, current_area->get_mapX(), 2);
             m_posy--;
             p_posy = BOUNDYU;
             canTransition = false;
@@ -212,10 +178,10 @@ if (eastDoor) {
         }
 
         Area& area = map[y][x];
-        if (area.get_name() == "") {
-            Area newArea = generateRoom(y, x, d);
-            map[y][x] = newArea;
-        }
+        //if (area.get_name() == "") {
+            //Area newArea = generateRoom(y, x);
+            //map[y][x] = newArea;
+        //}
         return map[y][x];
     }
 //-----[ RENDER FUNCTIONS ]-----//
