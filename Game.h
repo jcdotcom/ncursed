@@ -61,6 +61,11 @@ class Game{
         m_posy, m_posx, //  Player Position in map
         player_health;
 
+        int keyRoomY;
+        int keyRoomX;
+        int lockRoomY;
+        int lockRoomX;
+
         std::vector<std::vector<Area>> map;
         Area* current_area;
         Area begin;

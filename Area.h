@@ -10,6 +10,8 @@ struct roomdata{
     bool doorE  = false;
     bool doorW  = false;
     bool visited;
+    bool key = false;
+    bool lock = false;
 };
 
 class Area{

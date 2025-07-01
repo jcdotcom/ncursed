@@ -57,23 +57,44 @@
 
 void Game::generateMap(){
     std::vector<std::vector<roomdata>> doorMap(mapYs, std::vector<roomdata>(mapXs));
-    int doorCount = 0;
+    bool roomFlag = false;
+    keyRoomY = 0;
+    keyRoomX = 0;
+    lockRoomY = 0;
+    lockRoomX = 0;
     for (int y = 0; y < mapYs; y++) {
         for (int x = 0; x < mapXs; x++) {
-            doorCount = 0;
-            while( doorCount < 1 ){
-                if( y < mapYs-1 && rand() % 2){
-                    doorCount++;
+            roomFlag = false;
+            while(!roomFlag){
+                if(y < mapYs-1 && rand() % 2){
+                    roomFlag = true;
                     doorMap[y][x].doorN = true;
                     doorMap[y + 1][x].doorS = true;
                 }
-                if( x < mapXs-1 && rand() % 2) {
-                    doorCount++;
+                if(x < mapXs-1 && rand() % 2) {
+                    roomFlag = true;
                     doorMap[y][x].doorE = true;
                     doorMap[y][x + 1].doorW = true;
                 }
-                if( y == mapYs-1 && x == mapXs - 1 ){
-                    doorCount++;
+                if(y == mapYs-1 && x == mapXs - 1){
+                    roomFlag = true;
+                }
+            }
+        }
+    }
+    roomFlag = false;
+    while(!roomFlag){
+        keyRoomY = rand() % mapYs;
+        keyRoomX = rand() % mapXs;
+        lockRoomY = rand() % mapYs;
+        lockRoomX = rand() % mapXs;
+        if(keyRoomY != lockRoomY || keyRoomX != lockRoomX){ 
+            if(keyRoomY != 0 || keyRoomX != 0){    
+                if(lockRoomY != 0 || lockRoomX != 0){    
+                    roomFlag = true;
+                    doorMap[keyRoomY][keyRoomX].key = true;
+                    doorMap[lockRoomY][lockRoomX].lock = true;
+                    //debug_msg = keyRoomY+" "+keyRoomX;
                 }
             }
         }
@@ -93,6 +114,9 @@ Area Game::generateRoom(int y, int x, roomdata rooms) {
             layout[row][col] = (row == 0 || row == 6 || col == 0 || col == 12) ? 2 : 0;
         }
     }
+
+    if(rooms.key){layout[3][7] = 0;}
+    else if(rooms.lock){layout[3][7] = 0;}
 
     bool dn = rooms.doorN;
     bool ds = rooms.doorS;
@@ -182,7 +206,7 @@ Area Game::generateRoom(int y, int x, roomdata rooms) {
             for (int x = BOUNDXL, xi = 0; x <= BOUNDXR; x++){
                 if (y == p_posy && x == p_posx){
                     xi++;
-                } else if (x%2==0 ){
+                } else if (x%2==0){
                     mvaddch(y, x, current_area->get_char(yi, xi));
                     xi++;
                 } else {
@@ -195,7 +219,7 @@ Area Game::generateRoom(int y, int x, roomdata rooms) {
                 mvwprintw(win_stat,3,2,"[inv    =%2d /%2d]", inventory_used, INVENTORY_SIZE);
                 mvwprintw(win_stat,4,2,"[room   =%2d /%2d]", m_posy, m_posx);
                 mvwprintw(win_stat,5,2,"[map    =%2d /%2d]", mapYs, mapXs);
-                //mvwprintw(win_stat,6,2,"[canTran=%2d    ]", canTransition);
+                mvwprintw(win_stat,6,2,"[key=%2d / %2d]", keyRoomY, keyRoomX);
                 mvwprintw(win_stat,7,2,"[debug  = %s ]", debug_msg_c);
                 wrefresh(win_stat);
             }
