@@ -54,20 +54,13 @@ class Game{
         WINDOW *win_stat;
         WINDOW *win_msg;
         bool isRunning;
-        bool canTransition;
         int tickSpeed,
         elapsedTime,
         mapYs, mapXs,
-        p_posy, p_posx, //  Player Position Y & X
-        m_posy, m_posx,
+        p_posy, p_posx, //  Player Position in room
+        m_posy, m_posx, //  Player Position in map
         player_health;
 
-        //std::string debug_msg;
-
-        //  player pos is real display coordinates 
-        //  (ie: y=0,x=0 the top left on the game board is y=2, x=4)
-      
-        //std::array<std::array<Area, 2>, 2> map;
         std::vector<std::vector<Area>> map;
         Area* current_area;
         Area begin;

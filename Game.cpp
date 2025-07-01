@@ -40,7 +40,6 @@
         m_posx = 1;
         inventory_used = 0;
         isRunning = true;
-        canTransition = true;
 
         mapYs = 3;
         mapXs = 3;
@@ -76,7 +75,6 @@ void Game::generateMap(){
                 if( y == mapYs-1 && x == mapXs - 1 ){
                     doorCount++;
                 }
-                //srand(time(0));
             }
         }
     }
@@ -120,34 +118,29 @@ Area Game::generateRoom(int y, int x, roomdata rooms) {
 
 //-----[ GAME FUNCTIONS ]-----//
     void Game::update() {
-        if (!canTransition) return;
-        else if (p_posx <= BOUNDXL && m_posx > 0) {
+        if (p_posx <= BOUNDXL && m_posx > 0) {
             debug_msg = "left";
             current_area = &getRoom(current_area->get_mapY(), current_area->get_mapX() - 1, 3);
             m_posx--;
             p_posx = BOUNDXR;
-            canTransition = false;
         }
         else if (p_posx >= BOUNDXR && m_posx < mapXs) {
             debug_msg = "right";
             current_area = &getRoom(current_area->get_mapY(), current_area->get_mapX() + 1, 1);
             m_posx++;
             p_posx = BOUNDXL;
-            canTransition = false;
         }
         else if (p_posy <= BOUNDYU && m_posy < mapYs) {
             debug_msg = "up";
             current_area = &getRoom(current_area->get_mapY() + 1, current_area->get_mapX(), 0);
             m_posy++;
             p_posy = BOUNDYD;
-            canTransition = false;
         }
         else if (p_posy >= BOUNDYD && m_posy > 0) {
             debug_msg = "down";
             current_area = &getRoom(current_area->get_mapY() - 1, current_area->get_mapX(), 2);
             m_posy--;
             p_posy = BOUNDYU;
-            canTransition = false;
         }
     }
 
@@ -176,7 +169,7 @@ Area Game::generateRoom(int y, int x, roomdata rooms) {
         box(win_game, 0, 0);
         box(win_stat, 0, 0);
         box(win_msg, 0, 0);
-        mvwprintw(win_main, 0, 3, "[ ncursed alpha 0.01 ]");
+        mvwprintw(win_main, 0, 3, "[ ncursed alpha 0.021a ]");
         mvwprintw(win_stat, 0, 3, "[ debug ]");
         wrefresh(win_main);
         wrefresh(win_game);
@@ -202,7 +195,7 @@ Area Game::generateRoom(int y, int x, roomdata rooms) {
                 mvwprintw(win_stat,3,2,"[inv    =%2d /%2d]", inventory_used, INVENTORY_SIZE);
                 mvwprintw(win_stat,4,2,"[room   =%2d /%2d]", m_posy, m_posx);
                 mvwprintw(win_stat,5,2,"[map    =%2d /%2d]", mapYs, mapXs);
-                mvwprintw(win_stat,6,2,"[canTran=%2d    ]", canTransition);
+                //mvwprintw(win_stat,6,2,"[canTran=%2d    ]", canTransition);
                 mvwprintw(win_stat,7,2,"[debug  = %s ]", debug_msg_c);
                 wrefresh(win_stat);
             }
@@ -259,7 +252,6 @@ Area Game::generateRoom(int y, int x, roomdata rooms) {
         int ch = getch();
         if (p_posx >= BOUNDXL + 2 && p_posx <= BOUNDXR - 2 &&
             p_posy > BOUNDYU + 1 && p_posy < BOUNDYD - 1) {
-            canTransition = true;
         }
         switch(ch) {
             case 'w':
