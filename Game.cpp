@@ -6,7 +6,7 @@
     #       using the NCurses library                   #
     #                                                   #
     #       Written by jcdotcom, started 01/26/2025     #
-    #               current ver: 0.02a   06/19/2025     #
+    #               current ver: 0.021a  06/30/2025     #
     #                                                   #
     #####################################################
 */
@@ -32,7 +32,7 @@
 //-----[ GAME VAR INITIALIZATION ]-----//
 
     void Game::initGame(){
-        tickSpeed = 10; // milliseconds
+        tickSpeed = 10;
         elapsedTime = 0;
         p_posy = 3;
         p_posx = 6;
@@ -58,37 +58,26 @@
 
 void Game::generateMap(){
     std::vector<std::vector<roomdata>> doorMap(mapYs, std::vector<roomdata>(mapXs));
+    int doorCount = 0;
     for (int y = 0; y < mapYs; y++) {
         for (int x = 0; x < mapXs; x++) {
-            if (y > 0 && rand() % 2) {
-                doorMap[y][x].doorN = true;
-                doorMap[y - 1][x].doorS = true;
+            doorCount = 0;
+            while( doorCount < 1 ){
+                if( y < mapYs-1 && rand() % 2){
+                    doorCount++;
+                    doorMap[y][x].doorN = true;
+                    doorMap[y + 1][x].doorS = true;
+                }
+                if( x < mapXs-1 && rand() % 2) {
+                    doorCount++;
+                    doorMap[y][x].doorE = true;
+                    doorMap[y][x + 1].doorW = true;
+                }
+                if( y == mapYs-1 && x == mapXs - 1 ){
+                    doorCount++;
+                }
+                //srand(time(0));
             }
-            if (y < mapYs-1 && rand() % 2){
-                doorMap[y][x].doorS = true;
-                doorMap[y + 1][x].doorN = true;
-            }
-            if (x > 0 && rand() % 2) {
-                doorMap[y][x].doorW = true;
-                doorMap[y][x - 1].doorE = true;
-            }
-            if (x < mapXs-1 && rand() % 2) {
-                doorMap[y][x].doorE = true;
-                doorMap[y][x + 1].doorW = true;
-            }
-/*
-            if(y < mapYs-1 && doorMap[y+1][x].doorS == true){
-                doorMap[y][x].doorN = true;
-            }
-            if(y > 0 && doorMap[y-1][x].doorN == true){
-                doorMap[y][x].doorS = true;
-            }
-            if(x < mapXs-1 && doorMap[y][x+1].doorW == true){
-                doorMap[y][x].doorE = true;
-            }
-            if(x > 0 && doorMap[y][x-1].doorE == true){
-                doorMap[y][x].doorW = true;
-            }*/
         }
     }
     for (int y = 0; y < mapYs; y++) {
@@ -101,7 +90,6 @@ void Game::generateMap(){
 Area Game::generateRoom(int y, int x, roomdata rooms) {
     std::array<std::array<int,13>, 7> layout{};
 
-    // Outer walls
     for (int row = 0; row < 7; row++) {
         for (int col = 0; col < 13; col++) {
             layout[row][col] = (row == 0 || row == 6 || col == 0 || col == 12) ? 2 : 0;
@@ -140,14 +128,14 @@ Area Game::generateRoom(int y, int x, roomdata rooms) {
             p_posx = BOUNDXR;
             canTransition = false;
         }
-        else if (p_posx >= BOUNDXR && m_posx < 3) {
+        else if (p_posx >= BOUNDXR && m_posx < mapXs) {
             debug_msg = "right";
             current_area = &getRoom(current_area->get_mapY(), current_area->get_mapX() + 1, 1);
             m_posx++;
             p_posx = BOUNDXL;
             canTransition = false;
         }
-        else if (p_posy <= BOUNDYU && m_posy < mapYs - 1) {
+        else if (p_posy <= BOUNDYU && m_posy < mapYs) {
             debug_msg = "up";
             current_area = &getRoom(current_area->get_mapY() + 1, current_area->get_mapX(), 0);
             m_posy++;
@@ -364,6 +352,7 @@ Area Game::generateRoom(int y, int x, roomdata rooms) {
 //-----[ MAIN GAME LOOP ]-----//
         
     void Game::play(){
+        srand(time(0));
         initGame();
         drawFrame();
         drawFloor();

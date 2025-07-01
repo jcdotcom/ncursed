@@ -18,6 +18,10 @@
 
 ~~~~~{   CHANGELOG   }~~~~~
 
+    ---[ 0.021a - 06/30/2025 ]---
+
+        -bug fixes on door generation and room transitions
+
     ---[ 0.02a - 06/19/2025 ]---
 
         -began rework of room procedural generation
