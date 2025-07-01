@@ -6,7 +6,7 @@
     #       using the NCurses library                   #
     #                                                   #
     #       Written by jcdotcom, started 01/26/2025     #
-    #               current ver: 0.01a   02/09/2025     #
+    #               current ver: 0.021a   06/30/2025    #
     #                                                   #
     #####################################################
 
