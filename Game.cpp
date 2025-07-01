@@ -51,7 +51,7 @@
 
         generateMap();
 
-        current_area = &map[1][1]; // Start in center of 3x3 grid
+        current_area = &map[0][0];
     }
 
 //-----[ GENERATOR FUNCTIONS ]-----//
@@ -60,7 +60,6 @@ void Game::generateMap(){
     std::vector<std::vector<roomdata>> doorMap(mapYs, std::vector<roomdata>(mapXs));
     for (int y = 0; y < mapYs; y++) {
         for (int x = 0; x < mapXs; x++) {
-            //map[y][x] = generateRoom(y, x, -1); // -1 = no direction (initial gen)
             if (y > 0 && rand() % 2) {
                 doorMap[y][x].doorN = true;
                 doorMap[y - 1][x].doorS = true;
@@ -77,6 +76,7 @@ void Game::generateMap(){
                 doorMap[y][x].doorE = true;
                 doorMap[y][x + 1].doorW = true;
             }
+/*
             if(y < mapYs-1 && doorMap[y+1][x].doorS == true){
                 doorMap[y][x].doorN = true;
             }
@@ -88,16 +88,14 @@ void Game::generateMap(){
             }
             if(x > 0 && doorMap[y][x-1].doorE == true){
                 doorMap[y][x].doorW = true;
-            }
+            }*/
         }
     }
-
     for (int y = 0; y < mapYs; y++) {
         for (int x = 0; x < mapXs; x++) {
             map[y][x] = generateRoom(y, x, doorMap[y][x]);
         }
     }
-    //debug_msg = std::to_string(count);
 }
 
 Area Game::generateRoom(int y, int x, roomdata rooms) {
@@ -116,20 +114,18 @@ Area Game::generateRoom(int y, int x, roomdata rooms) {
     bool dw = rooms.doorW;
 
     if(y == 0){ ds = false; }
-    else if(y == 2){ dn = false; }
+    else if(y == mapYs - 1){ dn = false; }
     if(x == 0){ dw = false; }
-    else if(x == 2){ de = false; }
+    else if(x == mapXs - 1){ de = false; }
 
-    if(dn){ layout[6][5] = 0; layout[6][6] = 0; layout[6][7] = 0; }
-    if(ds){ layout[0][5] = 0; layout[0][6] = 0; layout[0][7] = 0; }
-    if(de){ layout[2][0] = 0; layout[3][0] = 0; layout[4][0] = 0; }
-    if(dw){ layout[2][12] = 0; layout[3][12] = 0; layout[4][12] = 0; }
+    if(dn){ layout[0][5] = 0; layout[0][6] = 0; layout[0][7] = 0; }
+    if(ds){ layout[6][5] = 0; layout[6][6] = 0; layout[6][7] = 0; }
+    if(de){ layout[2][12] = 0; layout[3][12] = 0; layout[4][12] = 0; }
+    if(dw){ layout[2][0] = 0; layout[3][0] = 0; layout[4][0] = 0; }
 
-
-    // --- Save this info in the Area (so future rooms can reference it) --- //
     std::vector<Item*> inv;
     Area newRoom(std::to_string(y) + " " + std::to_string(x), y, x, layout, inv);
-    newRoom.setDoors(dn, ds, de, dw); // You'll implement this
+    newRoom.setDoors(dn, ds, de, dw);
 
     return newRoom;
 }
@@ -141,7 +137,7 @@ Area Game::generateRoom(int y, int x, roomdata rooms) {
             debug_msg = "left";
             current_area = &getRoom(current_area->get_mapY(), current_area->get_mapX() - 1, 3);
             m_posx--;
-            p_posx = BOUNDXR; // Move slightly inside the new room
+            p_posx = BOUNDXR;
             canTransition = false;
         }
         else if (p_posx >= BOUNDXR && m_posx < 3) {
@@ -151,7 +147,7 @@ Area Game::generateRoom(int y, int x, roomdata rooms) {
             p_posx = BOUNDXL;
             canTransition = false;
         }
-        else if (p_posy <= BOUNDYU && m_posy < 3) {
+        else if (p_posy <= BOUNDYU && m_posy < mapYs - 1) {
             debug_msg = "up";
             current_area = &getRoom(current_area->get_mapY() + 1, current_area->get_mapX(), 0);
             m_posy++;
@@ -178,10 +174,6 @@ Area Game::generateRoom(int y, int x, roomdata rooms) {
         }
 
         Area& area = map[y][x];
-        //if (area.get_name() == "") {
-            //Area newArea = generateRoom(y, x);
-            //map[y][x] = newArea;
-        //}
         return map[y][x];
     }
 //-----[ RENDER FUNCTIONS ]-----//
@@ -210,10 +202,10 @@ Area Game::generateRoom(int y, int x, roomdata rooms) {
                 if (y == p_posy && x == p_posx){
                     xi++;
                 } else if (x%2==0 ){
-                    mvaddch(y, x, current_area->get_char(yi, xi)); // Draw everything else
+                    mvaddch(y, x, current_area->get_char(yi, xi));
                     xi++;
                 } else {
-                    mvaddch(y, x, ' '); // Draw the background
+                    mvaddch(y, x, ' ');
                 }
                 // DEBUG MENU STATS
                 const char* debug_msg_c = debug_msg.c_str();
@@ -234,7 +226,7 @@ Area Game::generateRoom(int y, int x, roomdata rooms) {
     }
 
     void Game::drawPlayer(){
-        mvaddch(p_posy, p_posx, 'O'); // Draw the player
+        mvaddch(p_posy, p_posx, 'O');
         refresh();
     }
 
@@ -391,8 +383,8 @@ Area Game::generateRoom(int y, int x, roomdata rooms) {
             endwin();
             printf("Game exited with error %s", e);
         }
-        getch(); // Wait for user input before closing
-        endwin(); // End ncurses mode
+        getch();
+        endwin();
     }
 
 //-----[ GAME CONSTRUCTOR ]-----//
