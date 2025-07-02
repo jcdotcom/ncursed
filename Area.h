@@ -21,10 +21,11 @@ class Area{
         std::string description;
         int mapX;
         int mapY;
+        int lockY;
         std::array<std::array<int, 13>, 7> intmap;
         std::vector<Item*> room_inventory;
 
-        bool doorN = false, doorS = false, doorE = false, doorW = false;
+        bool doorN = false, doorS = false, doorE = false, doorW = false, lock = false;
 
     public:
         Area();
@@ -39,6 +40,10 @@ class Area{
         int get_mapY();
         std::array<std::array<int, 13>, 7>* get_intmap();
         std::vector<Item*>& get_room_inventory();
+        int get_lockY();
+        void set_lockY(int y);
+        void set_lock();
+        void unlock();
 
         void set_name(std::string name);
         void set_description(std::string description);
@@ -55,6 +60,7 @@ class Area{
         bool hasDoorSouth() const { return doorS; }
         bool hasDoorEast()  const { return doorE; }
         bool hasDoorWest()  const { return doorW; }
+        bool hasLock() const { return lock; }
 
         void setDoors(bool n, bool s, bool e, bool w) {
             doorN = n; doorS = s; doorE = e; doorW = w;

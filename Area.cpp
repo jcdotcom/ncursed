@@ -42,6 +42,25 @@ std::vector<Item*>& Area::get_room_inventory(){
     return room_inventory;
 }
 
+int Area::get_lockY(){
+    return lockY;
+}
+
+void Area::set_lockY(int y){
+    lockY = y;
+}
+
+void Area::set_lock(){
+    lock = true;
+}
+
+void Area::unlock(){
+    intmap[lockY][5] = 1;
+    intmap[lockY][6] = 1;
+    intmap[lockY][7] = 1;
+    lock = false;
+}
+
 void Area::set_room_inventory(std::vector<Item*> room_inventory){
     this->room_inventory = room_inventory;
 }
@@ -61,13 +80,15 @@ void Area::rm_room_inventory(Item* item){
 char Area::get_char(int yi, int xi){
     switch(intmap[yi][xi]){
         case 0:
-            return '.';     // These are all player-blocking obstacles like walls
+            return '.';     // Open floor tiles
         case 1:
-            return '.';
+            return '.';     // Unlocked Door
         case 2:
-            return '#';     
+            return '#';     // Walls
         case 3:             
-            return '&';    
+            return '&';     
+        case 4:
+            return '-';     // Locked Door
         default:
             return 'X';     // If this is on screen thats bad news
     }
@@ -94,7 +115,7 @@ int Area::collision(int y, int x){
         case 0:
             return 0;
         case 1:
-            return 2;
+            return 1;
         case 2:
             return 2;
         default:

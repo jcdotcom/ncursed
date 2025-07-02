@@ -6,7 +6,7 @@
     #       using the NCurses library                   #
     #                                                   #
     #       Written by jcdotcom, started 01/26/2025     #
-    #               current ver: 0.021a  06/30/2025     #
+    #               current ver: 0.03a   07/02/2025     #
     #                                                   #
     #####################################################
 */
@@ -34,8 +34,9 @@
     void Game::initGame(){
         tickSpeed = 10;
         elapsedTime = 0;
-        p_posy = 3;
-        p_posx = 6;
+        cleared = false;
+        p_posy = 5;
+        p_posx = 16;
         m_posy = 1;
         m_posx = 1;
         inventory_used = 0;
@@ -89,12 +90,11 @@ void Game::generateMap(){
         lockRoomY = rand() % mapYs;
         lockRoomX = rand() % mapXs;
         if(keyRoomY != lockRoomY || keyRoomX != lockRoomX){ 
-            if(keyRoomY != 0 || keyRoomX != 0){    
-                if(lockRoomY != 0 || lockRoomX != 0){    
-                    roomFlag = true;
+            if(keyRoomY != 0 || keyRoomX != 0){             // ensure key isn't in starting room
+                if(lockRoomY != 1){       // ensure locked door is on an edge room
                     doorMap[keyRoomY][keyRoomX].key = true;
                     doorMap[lockRoomY][lockRoomX].lock = true;
-                    //debug_msg = keyRoomY+" "+keyRoomX;
+                    roomFlag = true;
                 }
             }
         }
@@ -108,6 +108,7 @@ void Game::generateMap(){
 
 Area Game::generateRoom(int y, int x, roomdata rooms) {
     std::array<std::array<int,13>, 7> layout{};
+    std::vector<Item*> inv;
 
     for (int row = 0; row < 7; row++) {
         for (int col = 0; col < 13; col++) {
@@ -115,8 +116,7 @@ Area Game::generateRoom(int y, int x, roomdata rooms) {
         }
     }
 
-    if(rooms.key){layout[3][7] = 0;}
-    else if(rooms.lock){layout[3][7] = 0;}
+    int lockY = -1;
 
     bool dn = rooms.doorN;
     bool ds = rooms.doorS;
@@ -133,9 +133,30 @@ Area Game::generateRoom(int y, int x, roomdata rooms) {
     if(de){ layout[2][12] = 0; layout[3][12] = 0; layout[4][12] = 0; }
     if(dw){ layout[2][0] = 0; layout[3][0] = 0; layout[4][0] = 0; }
 
-    std::vector<Item*> inv;
+    if(rooms.key){
+        Key *key = new Key("key","A key", 0, 4, 8);
+        inv.push_back(key);
+    }
+    else if(rooms.lock){
+        if(y==0){
+            layout[6][5] = 4; layout[6][6] = 4; layout[6][7] = 4;
+            lockY = 6;
+        }
+        else if(y == mapYs - 1){
+            layout[0][5] = 4; layout[0][6] = 4; layout[0][7] = 4;
+            lockY = 0;
+        }
+        else{
+            debug_msg = "lock err";
+        }
+    }
+
     Area newRoom(std::to_string(y) + " " + std::to_string(x), y, x, layout, inv);
     newRoom.setDoors(dn, ds, de, dw);
+    if(rooms.lock){
+        newRoom.set_lock();
+        newRoom.set_lockY(lockY);
+    }
 
     return newRoom;
 }
@@ -193,7 +214,7 @@ Area Game::generateRoom(int y, int x, roomdata rooms) {
         box(win_game, 0, 0);
         box(win_stat, 0, 0);
         box(win_msg, 0, 0);
-        mvwprintw(win_main, 0, 3, "[ ncursed alpha 0.021a ]");
+        mvwprintw(win_main, 0, 3, "[ ncursed ]");
         mvwprintw(win_stat, 0, 3, "[ debug ]");
         wrefresh(win_main);
         wrefresh(win_game);
@@ -219,7 +240,7 @@ Area Game::generateRoom(int y, int x, roomdata rooms) {
                 mvwprintw(win_stat,3,2,"[inv    =%2d /%2d]", inventory_used, INVENTORY_SIZE);
                 mvwprintw(win_stat,4,2,"[room   =%2d /%2d]", m_posy, m_posx);
                 mvwprintw(win_stat,5,2,"[map    =%2d /%2d]", mapYs, mapXs);
-                mvwprintw(win_stat,6,2,"[key=%2d / %2d]", keyRoomY, keyRoomX);
+                mvwprintw(win_stat,6,2,"[wins   =%2d    ]", wins);
                 mvwprintw(win_stat,7,2,"[debug  = %s ]", debug_msg_c);
                 wrefresh(win_stat);
             }
@@ -265,14 +286,47 @@ Area Game::generateRoom(int y, int x, roomdata rooms) {
                 }
             }
         }
-        update_message("");
         return 0;
+    }
+
+    int Game::checkForLock(){
+        if(current_area->hasLock()){
+            if(translateY() == current_area->get_lockY() - 1 ||
+                translateY() == current_area->get_lockY() + 1){
+                    if(hasKey()){
+                        update_message("Press [SPACE] to unlock door");
+                        return 1;
+                    }
+                    else{
+                        update_message("No key to unlock this door!");
+                        return 2;
+                    }
+            }
+        }
+        return 0;
+    }
+
+    int Game::checkForClear(){
+        if(cleared == true){
+            update_message("Floor Cleared!");
+            wins++;
+            drawFloor();
+            mvaddch(p_posy, p_posx, '.');
+            refresh();
+            sleep(2);
+            initGame();
+            return 1;
+        }
+        else{
+            return 0;
+        }
     }
 
 //-----[ INPUT HANDLER ]-----//
 
     void Game::input(){
         nodelay(stdscr, TRUE);
+        update_message("");
         int ch = getch();
         if (p_posx >= BOUNDXL + 2 && p_posx <= BOUNDXR - 2 &&
             p_posy > BOUNDYU + 1 && p_posy < BOUNDYD - 1) {
@@ -280,8 +334,11 @@ Area Game::generateRoom(int y, int x, roomdata rooms) {
         switch(ch) {
             case 'w':
                 if(p_posy > BOUNDYU){
-                    if(current_area->collision(translateY()-1, translateX())<=1){
+                    if(current_area->collision(translateY()-1, translateX())<1){
                         p_posy--;
+                    }
+                    else if(current_area->collision(translateY()-1, translateX()) == 1){
+                        cleared = true;
                     }
                     else{
                         debug_msg = "collU";
@@ -291,8 +348,11 @@ Area Game::generateRoom(int y, int x, roomdata rooms) {
                 break;
             case 's':
                 if(p_posy < BOUNDYD){
-                    if(current_area->collision(translateY()+1, translateX())<=1){
+                    if(current_area->collision(translateY()+1, translateX())<1){
                         p_posy++;
+                    }
+                    else if(current_area->collision(translateY()+1, translateX()) == 1){
+                        cleared = true;
                     }
                     else{
                         debug_msg = "collD";
@@ -313,7 +373,7 @@ Area Game::generateRoom(int y, int x, roomdata rooms) {
                 break;
             case 'd':
                 if(p_posx < BOUNDXR){
-                    if(current_area->collision(translateY(), translateX()+1)<=1){
+                    if(current_area->collision(translateY(), translateX()+1)<1){
                         p_posx+=2;
                     }
                     else{
@@ -335,6 +395,9 @@ Area Game::generateRoom(int y, int x, roomdata rooms) {
                             update_message("Inventory full!");
                         }
                     }
+                }
+                if(checkForLock() == 1){
+                    current_area->unlock();
                 }
                 update();
                 break;
@@ -365,10 +428,20 @@ Area Game::generateRoom(int y, int x, roomdata rooms) {
         }
     }
 
+    bool Game::hasKey(){
+        for(int i = 0; i < inventory_used; i++){
+            if(inventory[i]->get_name()=="key"){
+                return true;
+            }
+        }
+        return false;
+    }
+
 //-----[ MAIN GAME LOOP ]-----//
         
     void Game::play(){
         srand(time(0));
+        wins = 0;
         initGame();
         drawFrame();
         drawFloor();
@@ -378,6 +451,8 @@ Area Game::generateRoom(int y, int x, roomdata rooms) {
                 drawFloor();
                 input();
                 checkForItems();
+                checkForLock();
+                checkForClear();
                 elapsedTime += 50;
                 if (elapsedTime >= tickSpeed){
                     refresh();

@@ -59,8 +59,8 @@ class Key : public Item {
             name = n; 
             desc = d;
             value = v;
-            posx = x;
             posy = y;
+            posx = x;
             itemchar = c;
         };
         int use(int input) override{

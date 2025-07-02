@@ -1,4 +1,4 @@
-;/*
+/*
     #####################################################
     #                                                   #
     #   NCursed                                         #
@@ -6,7 +6,7 @@
     #       using the NCurses library                   #
     #                                                   #
     #       Written by jcdotcom, started 01/26/2025     #
-    #               current ver: 0.01a   02/09/2025     #
+    #               current ver: 0.03a   07/02/2025     #
     #                                                   #
     #####################################################
 */
@@ -38,12 +38,15 @@ class Game{
         int translateY();
         void update_message(std::string);
         int checkForItems();
+        int checkForLock();
+        int checkForClear();
         
         void input();       // Input Handler
 
         std::array<Item*,INVENTORY_SIZE> get_inventory();
         void add_inventory(Item*);      // Inventory Functions
         void rm_inventory(std::string);
+        bool hasKey();
 
         void play();        // Main Game Loop
         std::string debug_msg;
@@ -65,6 +68,10 @@ class Game{
         int keyRoomX;
         int lockRoomY;
         int lockRoomX;
+
+        int wins;
+
+        bool cleared;
 
         std::vector<std::vector<Area>> map;
         Area* current_area;

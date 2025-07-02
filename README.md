@@ -18,6 +18,12 @@
 
 ~~~~~{   CHANGELOG   }~~~~~
 
+    ---[ 0.03a - 07/02/2025 ]---
+
+        -bug fixes on message window
+        -more progress on key and locked door generation / handling
+        -added functionality for multiple levels
+
     ---[ 0.021a - 06/30/2025 ]---
 
         -bug fixes on door generation and room transitions
