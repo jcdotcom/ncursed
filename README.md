@@ -16,6 +16,11 @@
     W,A,S,D to move
     SPACE to pick up items
 
+~~~~~{   INSTALLATION   }~~~~~
+
+    cd into ncursed directory and run "make" 
+    then simply run ./ncursed in any bash terminal
+
 ~~~~~{   CHANGELOG   }~~~~~
 
     ---[ 0.03a - 07/02/2025 ]---
