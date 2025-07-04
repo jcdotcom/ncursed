@@ -6,7 +6,7 @@
     #       using the NCurses library                   #
     #                                                   #
     #       Written by jcdotcom, started 01/26/2025     #
-    #               current ver: 0.03a   07/02/2025     #
+    #               current ver: 0.04a   07/04/2025     #
     #                                                   #
     #####################################################
 */
@@ -41,16 +41,29 @@
         m_posx = 1;
         inventory_used = 0;
         isRunning = true;
-
         mapYs = 3;
         mapXs = 3;
-
         map.resize(mapYs, std::vector<Area>(mapXs));
-
         debug_msg = "none";
-
         generateMap();
+        current_area = &map[0][0];
+    }
 
+    void Game::newFloor(){
+        map.clear();
+        elapsedTime = 0;
+        cleared = false;
+        mapYs++;
+        mapXs++;
+        map.resize(mapYs, std::vector<Area>(mapXs));
+        p_posy = 5;
+        p_posx = 16;
+        m_posy = 1;
+        m_posx = 1;
+        inventory_used = 0;
+        isRunning = true;
+        debug_msg = "none";
+        generateMap();
         current_area = &map[0][0];
     }
 
@@ -59,6 +72,7 @@
 void Game::generateMap(){
     std::vector<std::vector<roomdata>> doorMap(mapYs, std::vector<roomdata>(mapXs));
     bool roomFlag = false;
+    int roomType = 0;
     keyRoomY = 0;
     keyRoomX = 0;
     lockRoomY = 0;
@@ -83,6 +97,76 @@ void Game::generateMap(){
             }
         }
     }
+
+    //roomType = rand() % 4;    // this breaks inside the for loop but kinda works here 
+    for (int y = 0; y < mapYs; y++) {
+        for (int x = 0; x < mapXs; x++) {
+            roomFlag = false;
+            while(!roomFlag){
+                roomType = rand() % 8;
+                switch(roomType){
+                    case 0:
+                        doorMap[y][x].type = 0;
+                        roomFlag = true;
+                        break;
+                    case 1:
+                        if(!doorMap[y][x].doorE){
+                            doorMap[y][x].itemY = 3;
+                            doorMap[y][x].itemX = 24;
+                            doorMap[y][x].type = 1;
+                            roomFlag = true;
+                        }
+                        break;
+                    case 2:
+                        if(!doorMap[y][x].doorE){
+                            doorMap[y][x].itemY = 7;
+                            doorMap[y][x].itemX = 24;
+                            doorMap[y][x].type = 2;
+                            roomFlag = true;
+                        }
+                        break;
+                    case 3:
+                        if(!doorMap[y][x].doorW){
+                            doorMap[y][x].itemY = 3;
+                            doorMap[y][x].itemX = 8;
+                            doorMap[y][x].type = 3;
+                            roomFlag = true;
+                        }
+                        break;
+                    case 4:
+                        if(!doorMap[y][x].doorW){
+                            doorMap[y][x].itemY = 7;
+                            doorMap[y][x].itemX = 8;
+                            doorMap[y][x].type = 4;
+                            roomFlag = true;
+                        }
+                        break;
+                    case 5:
+                        doorMap[y][x].itemY = 3;
+                        doorMap[y][x].itemX = 16;
+                        doorMap[y][x].type = 5;
+                        roomFlag = true;
+                        break;
+                    case 6:
+                        doorMap[y][x].itemY = 7;
+                        doorMap[y][x].itemX = 16;
+                        doorMap[y][x].type = 6;
+                        roomFlag = true;
+                        break;
+                    case 7:
+                        doorMap[y][x].itemY = 5;
+                        doorMap[y][x].itemX = 16;
+                        doorMap[y][x].type = 7;
+                        roomFlag = true;
+                        break;
+                }
+
+                // 3 = good, 7 = good, 5 = good, 1 = good, 2 = good, 0 = good, 4 = , 6 = good
+
+            }
+        }
+    }
+
     roomFlag = false;
     while(!roomFlag){
         keyRoomY = rand() % mapYs;
@@ -132,9 +216,44 @@ Area Game::generateRoom(int y, int x, roomdata rooms) {
     if(ds){ layout[6][5] = 0; layout[6][6] = 0; layout[6][7] = 0; }
     if(de){ layout[2][12] = 0; layout[3][12] = 0; layout[4][12] = 0; }
     if(dw){ layout[2][0] = 0; layout[3][0] = 0; layout[4][0] = 0; }
-
+    if(rooms.type == 1){
+        layout[1][8] = 2; layout[2][8] = 2;
+        layout[3][8] = 2; layout[3][9] = 2;
+        layout[3][11] = 2; 
+    }
+    else if(rooms.type == 2){
+        layout[3][11] = 2; layout[3][9] = 2;
+        layout[3][8] = 2; layout[4][8] = 2;
+        layout[5][8] = 2; 
+    }
+    if(rooms.type == 3){
+        layout[1][4] = 2; layout[2][4] = 2;
+        layout[3][4] = 2; layout[3][3] = 2;
+        layout[3][1] = 2; 
+    }
+    else if(rooms.type == 4){
+        layout[3][1] = 2; layout[3][3] = 2;
+        layout[3][4] = 2; layout[4][4] = 2;
+        layout[5][4] = 2; 
+    }
+    else if(rooms.type == 5){
+        layout[1][4] = 2; layout[1][8] = 2;
+        layout[2][4] = 2; layout[2][8] = 2;
+        layout[2][5] = 2; layout[2][7] = 2;
+        //layout[3][5] = 2; layout[3][7] = 2;
+    }
+    else if(rooms.type == 6){
+        //layout[3][5] = 2; layout[3][7] = 2;
+        layout[4][5] = 2; layout[4][7] = 2;
+        layout[4][4] = 2; layout[4][8] = 2;
+        layout[5][4] = 2; layout[5][8] = 2;
+    }
+    else if(rooms.type == 7){
+        layout[2][2] = 2; layout[2][10] = 2;
+        layout[4][2] = 2; layout[4][10] = 2;
+    }
     if(rooms.key){
-        Key *key = new Key("key","A key", 0, 4, 8);
+        Key *key = new Key("key","A key", 0, rooms.itemY, rooms.itemX); // TODO change this to use the layout[7][13] structure
         inv.push_back(key);
     }
     else if(rooms.lock){
@@ -151,7 +270,7 @@ Area Game::generateRoom(int y, int x, roomdata rooms) {
         }
     }
 
-    Area newRoom(std::to_string(y) + " " + std::to_string(x), y, x, layout, inv);
+    Area newRoom(std::to_string(y) + " " + std::to_string(x), y, x, layout, inv, rooms.type);
     newRoom.setDoors(dn, ds, de, dw);
     if(rooms.lock){
         newRoom.set_lock();
@@ -241,12 +360,13 @@ Area Game::generateRoom(int y, int x, roomdata rooms) {
                 mvwprintw(win_stat,4,2,"[room   =%2d /%2d]", m_posy, m_posx);
                 mvwprintw(win_stat,5,2,"[map    =%2d /%2d]", mapYs, mapXs);
                 mvwprintw(win_stat,6,2,"[wins   =%2d    ]", wins);
-                mvwprintw(win_stat,7,2,"[debug  = %s ]", debug_msg_c);
+                mvwprintw(win_stat,7,2,"[type   =%2d    ]", current_area->get_type());
+                //mvwprintw(win_stat,7,2,"[debug  = %s ]", debug_msg_c);
                 wrefresh(win_stat);
             }
         }
         for(Item* item : current_area->get_room_inventory()){
-            mvaddch(item->get_posy(), item->get_posx(), item->get_char());
+            mvaddch(item->get_posy(), item->get_posx(), item->get_char());  // TODO: change this to use the layout[7][13] structure
         }
         refresh();
     }
@@ -314,7 +434,7 @@ Area Game::generateRoom(int y, int x, roomdata rooms) {
             mvaddch(p_posy, p_posx, '.');
             refresh();
             sleep(2);
-            initGame();
+            newFloor();
             return 1;
         }
         else{

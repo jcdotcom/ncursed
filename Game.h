@@ -24,7 +24,8 @@ class Game{
         Game();
         
         void initGame();    // Game Variable Initialization
-        
+        void newFloor();
+
         void generateMap();
         Area generateRoom(int x, int y, roomdata rooms);
 

@@ -6,7 +6,7 @@
     #       using the NCurses library                   #
     #                                                   #
     #       Written by jcdotcom, started 01/26/2025     #
-    #               current ver: 0.03a   06/30/2025     #
+    #               current ver: 0.04a   07/04/2025     #
     #                                                   #
     #####################################################
 
@@ -18,10 +18,17 @@
 
 ~~~~~{   INSTALLATION   }~~~~~
 
+    currently this game is only compatible with linux and unix distributions
+    windows and macOS compatibility is planned using a portable bash emulator
+
     cd into ncursed directory and run "make" 
     then simply run ./ncursed in any bash terminal
 
 ~~~~~{   CHANGELOG   }~~~~~
+
+    ---[ 0.04a - 07/04/2025 ]---
+
+        -added multiple types of rooms to generate with unique layouts
 
     ---[ 0.03a - 07/02/2025 ]---
 

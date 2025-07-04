@@ -14,16 +14,21 @@ Area::Area(){
     room_inventory = std::vector<Item*>();
 }
 
-Area::Area(std::string name, int mapY, int mapX, std::array<std::array<int, 13>, 7> inputmap, std::vector<Item*> room_inventory){
+Area::Area(std::string name, int mapY, int mapX, std::array<std::array<int, 13>, 7> inputmap, std::vector<Item*> room_inventory, int roomType){
     this->name = name;
     this->mapY = mapY;
     this->mapX = mapX;
     this->intmap = inputmap;
     this->room_inventory = room_inventory;
+    this->roomType = roomType;
 }
 
 std::string Area::get_name(){
     return name;
+}
+
+int Area::get_type(){
+    return roomType;
 }
 
 int Area::get_mapX(){
